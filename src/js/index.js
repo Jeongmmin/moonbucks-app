@@ -8,10 +8,10 @@
 // - [ ] 사용자 입력값이 빈 값이라면 추가되지 않는다.
 
 const $ = (selctor) => document.querySelector(selctor);
+let count = 0;
 
 function App() {
 
-  let count = 0;
 
   //form 태그가 자동으로 전송되는 것을 막아준다.
   $('#espresso-menu-form').addEventListener('submit', (e) => {
@@ -45,11 +45,10 @@ function App() {
       const newList = menuItemTemplate(espressoMenuName);
       $('#espresso-menu-list').insertAdjacentHTML('beforeend', newList);
 
-      // // count 업데이트
-      // if(count > 0) {
-      //   count++;
-      //   $('.menu-count').innerHTML = `총 ${count}개`;
-      // }
+      // count 업데이트
+        count++;
+        const menuCount = $('#espresso-menu-list').querySelectorAll('li').length;
+        $('.menu-count').innerText = `총 ${menuCount}개`;
     }
   });
 }
