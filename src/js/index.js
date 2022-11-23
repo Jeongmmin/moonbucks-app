@@ -10,27 +10,18 @@
 const $ = (selctor) => document.querySelector(selctor);
 
 function App() {
-
-
-  //form 태그가 자동으로 전송되는 것을 막아준다.
   $('#espresso-menu-form').addEventListener('submit', (e) => {
     e.preventDefault();
   });
 
-  // 메뉴의 이름을 입력받음
-  $('#espresso-menu-name').addEventListener('keypress', (e) => {
-    // 빈 값 입력에 대한 대응
-    if(e.key !== 'Enter') {
-      return;
-    }
+  const addMenuName = () => {
     if ($('#espresso-menu-name').value === '') {
       alert('값을 입력해주세요');
       return;
     }
-    if (e.key === 'Enter') {
-      const espressoMenuName = $('#espresso-menu-name').value;
-      const menuItemTemplate = (espressoMenuName) => {
-        return `<li class="menu-list-item d-flex items-center py-2">
+    const espressoMenuName = $('#espresso-menu-name').value;
+    const menuItemTemplate = (espressoMenuName) => {
+      return `<li class="menu-list-item d-flex items-center py-2">
       <span class="w-100 pl-2 menu-name">${espressoMenuName}</span>
       <button
         type="button"
@@ -45,19 +36,25 @@ function App() {
         삭제
       </button>
     </li>`;
-      };
-      // console.log(menuItemTemplate(espressoMenuName));
+    };
 
-      // 추가되는 메뉴 마크업
-      const newList = menuItemTemplate(espressoMenuName);
-      $('#espresso-menu-list').insertAdjacentHTML('beforeend', newList);
+    const newList = menuItemTemplate(espressoMenuName);
+    $('#espresso-menu-list').insertAdjacentHTML('beforeend', newList);
 
-      // count 업데이트
-        // count++;
-        const menuCount = $('#espresso-menu-list').querySelectorAll('li').length;
-        $('.menu-count').innerText = `총 ${menuCount}개`;
-        $('#espresso-menu-name').value = '';
+    const menuCount = $('#espresso-menu-list').querySelectorAll('li').length;
+    $('.menu-count').innerText = `총 ${menuCount}개`;
+    $('#espresso-menu-name').value = '';
+  };
+
+  $('#espresso-menu-submit-button').addEventListener('click', () => {
+    addMenuName();
+  });
+
+  $('#espresso-menu-name').addEventListener('keypress', (e) => {
+    if (e.key !== 'Enter') {
+      return;
     }
+    addMenuName();
   });
 }
 
