@@ -1,5 +1,8 @@
 // TODO localStorage Read & Write
 // [ ] localStorage에 데이터를 저장한다.
+//  [✅] 메뉴를 추가할 때 저장
+//  [] 메뉴를 수정할 때 저장
+//  [ ] 메뉴를 삭제할 때 저장
 // [ ] localStorage에 있는 데이터를 읽어온다.
 
 // TODO 카테고리별 메뉴판 관리
@@ -32,8 +35,9 @@ const store = {
 };
 
 function App() {
-
-  // 상태 = 변할 수 있는 data, 이 앱에서 변하는 것이 무엇인가 => 메뉴명 (갯수는 메뉴명 배열의 길이만 알면되니까 따로 관리할 필요 X)
+  // 상태는 변하는 데이터, 이앱에서 변하는 것이 무엇인가? - 메뉴명
+  // 초기화
+  this.menu = [];
 
   const updatedMenuCount = () => {
     const menuCount = $('#espresso-menu-list').querySelectorAll('li').length;
@@ -46,9 +50,12 @@ function App() {
       return;
     }
     const espressoMenuName = $('#espresso-menu-name').value;
-    const menuItemTemplate = (espressoMenuName) => {
-      return `<li class="menu-list-item d-flex items-center py-2">
-      <span class="w-100 pl-2 menu-name">${espressoMenuName}</span>
+    this.menu.push({ name: espressoMenuName });
+    store.setLocalStorage(this.menu);
+    const template = this.menu
+      .map((menuItem, index) => {
+        return `<li data-menu-id="${index}" class="menu-list-item d-flex items-center py-2">
+      <span class="w-100 pl-2 menu-name">${menuItem.name}</span>
       <button
         type="button"
         class="bg-gray-50 text-gray-500 text-sm mr-1 menu-edit-button"
@@ -62,21 +69,24 @@ function App() {
         삭제
       </button>
     </li>`;
-    };
+      })
+      .join('');
 
-    const newList = menuItemTemplate(espressoMenuName);
-    $('#espresso-menu-list').insertAdjacentHTML('beforeend', newList);
+    $('#espresso-menu-list').innerHTML = template;
 
     updatedMenuCount();
     $('#espresso-menu-name').value = '';
   };
 
   const updateMenuName = (e) => {
+    const menuId = e.target.closest('li').dataset.menuId;
     const $menuName = e.target.closest('li').querySelector('.menu-name');
     const editedMenuName = prompt(
       '수정할 메뉴명을 입력해주세요',
       $menuName.innerText
     );
+    this.menu[menuId].name = editedMenuName;
+    store.setLocalStorage.setItem('this.menu');
     $menuName.innerText = editedMenuName;
   };
 
@@ -101,7 +111,7 @@ function App() {
     e.preventDefault();
   });
 
-  $('#espresso-menu-submit-button').addEventListener('click', addMenuName());
+  $('#espresso-menu-submit-button').addEventListener('click', addMenuName);
 
   $('#espresso-menu-name').addEventListener('keypress', (e) => {
     if (e.key !== 'Enter') {
@@ -111,4 +121,4 @@ function App() {
   });
 }
 
-App();
+const app = new App();
