@@ -1,8 +1,8 @@
 // TODO localStorage Read & Write
 // [ ] localStorage에 데이터를 저장한다.
 //  [✅] 메뉴를 추가할 때 저장
-//  [] 메뉴를 수정할 때 저장
-//  [ ] 메뉴를 삭제할 때 저장
+//  [✅] 메뉴를 수정할 때 저장
+//  [✅] 메뉴를 삭제할 때 저장
 // [ ] localStorage에 있는 데이터를 읽어온다.
 
 // TODO 카테고리별 메뉴판 관리
@@ -38,6 +38,7 @@ function App() {
   // 상태는 변하는 데이터, 이앱에서 변하는 것이 무엇인가? - 메뉴명
   // 초기화
   this.menu = [];
+  
 
   const updatedMenuCount = () => {
     const menuCount = $('#espresso-menu-list').querySelectorAll('li').length;
@@ -86,12 +87,15 @@ function App() {
       $menuName.innerText
     );
     this.menu[menuId].name = editedMenuName;
-    store.setLocalStorage.setItem('this.menu');
+    store.setLocalStorage(this.menu);
     $menuName.innerText = editedMenuName;
   };
 
   const removeMenuName = (e) => {
     if (confirm('정말 메뉴를 삭제하시겠습니까?')) {
+      const menuId = e.target.closest('li').dataset.menuId;
+      this.menu.splice(menuId, 1);
+      store.setLocalStorage(this.menu);
       e.target.closest('li').remove();
       updatedMenuCount();
     }
