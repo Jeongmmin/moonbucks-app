@@ -1,0 +1,1 @@
+export const $ = (selctor) => document.querySelector(selctor);
