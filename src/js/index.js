@@ -38,7 +38,7 @@ const MenuApi = {
     }
   },
 
-  async updateMenuName(category, name, menuId) {
+  async updateMenu(category, name, menuId) {
     const response = await fetch(
       `${BASE_URL}/category/${category}/menu/${menuId}`,
       {
@@ -47,6 +47,19 @@ const MenuApi = {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ name }),
+      }
+    );
+    if (!response.ok) {
+      console.error('에러가 발생했습니다.');
+    }
+    return response.json();
+  },
+
+  async toggleSoldOutMenu(category, menuId) {
+    const response = await fetch(
+      `${BASE_URL}/category/${category}/menu/${menuId}/soldout`,
+      {
+        method: 'PUT',
       }
     );
     if (!response.ok) {
@@ -78,9 +91,11 @@ function App() {
   const render = () => {
     const template = this.menu[this.currentCategory]
       .map((menuItem) => {
-        return `<li data-menu-id="${menuItem.id}" class="  menu-list-item d-flex items-center py-2">
+        return `<li data-menu-id="${
+          menuItem.id
+        }" class="  menu-list-item d-flex items-center py-2">
       <span class="w-100 pl-2 menu-name ${
-        menuItem.soldOut ? 'sold-out' : ''
+        menuItem.isSoldOut ? 'sold-out' : ''
       }">${menuItem.name}</span>
       <button
         type="button"
@@ -138,11 +153,8 @@ function App() {
       $menuName.innerText
     );
 
-    await MenuApi.updateMenuName(
-      this.currentCategory, editedMenuName, menuId
-    );
+    await MenuApi.updateMenu(this.currentCategory, editedMenuName, menuId);
 
-    // 수정 후 변경 된 데이터를 다시 불러와야 한다.
     this.menu[this.currentCategory] = await MenuApi.getAllMenuByCategory(
       this.currentCategory
     );
@@ -158,10 +170,12 @@ function App() {
     }
   };
 
-  const soldOutMenu = (e) => {
+  const soldOutMenu = async (e) => {
     const menuId = e.target.closest('li').dataset.menuId;
-    this.menu[this.currentCategory][menuId].soldOut =
-      !this.menu[this.currentCategory][menuId].soldOut;
+    await MenuApi.toggleSoldOutMenu(this.currentCategory, menuId);
+    this.menu[this.currentCategory] = await MenuApi.getAllMenuByCategory(
+      this.currentCategory
+    );
     render();
   };
 
@@ -203,7 +217,6 @@ function App() {
         const categoryName = e.target.dataset.categoryName;
         this.currentCategory = categoryName;
         $('#category-title').innerText = `${e.target.innerText} 메뉴 관리`;
-        // await MenuApi.getAllMenuByCategory(this.currentCategory)
         this.menu[this.currentCategory] = await MenuApi.getAllMenuByCategory(
           this.currentCategory
         );
