@@ -5,7 +5,7 @@ import store from './store/index.js';
 // [✅] 웹 서버를 띄운다.
 // [✅] 서버에 새로운 메뉴가 추가될 수 있게 요청한다.
 // [✅] 서버에서 카테고리별 메뉴리스트를 불러온다.
-// [] 서버에 메뉴가 수정될 수 있도록 요청한다.
+// [✅] 서버에 메뉴가 수정될 수 있도록 요청한다.
 // [] 서버에 메뉴품절상태를 toggle할 수 있도록 요청한다.
 // [] 서버에 메뉴가 삭제될 수 있도록 요청한다.
 
@@ -26,10 +26,23 @@ const MenuApi = {
   },
 
   async createMenu(category, name) {
+    const response = await fetch(`${BASE_URL}/category/${category}/menu`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name }),
+    });
+    if (!response.ok) {
+      console.error('에러가 발생했습니다.');
+    }
+  },
+
+  async updateMenuName(category, name, menuId) {
     const response = await fetch(
-      `${BASE_URL}/category/${category}/menu`,
+      `${BASE_URL}/category/${category}/menu/${menuId}`,
       {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -39,6 +52,7 @@ const MenuApi = {
     if (!response.ok) {
       console.error('에러가 발생했습니다.');
     }
+    return response.json();
   },
 };
 
@@ -63,8 +77,8 @@ function App() {
 
   const render = () => {
     const template = this.menu[this.currentCategory]
-      .map((menuItem, index) => {
-        return `<li data-menu-id="${index}" class="  menu-list-item d-flex items-center py-2">
+      .map((menuItem) => {
+        return `<li data-menu-id="${menuItem.id}" class="  menu-list-item d-flex items-center py-2">
       <span class="w-100 pl-2 menu-name ${
         menuItem.soldOut ? 'sold-out' : ''
       }">${menuItem.name}</span>
@@ -116,14 +130,23 @@ function App() {
     $('#menu-name').value = '';
   };
 
-  const updateMenuName = (e) => {
+  const updateMenuName = async (e) => {
     const menuId = e.target.closest('li').dataset.menuId;
     const $menuName = e.target.closest('li').querySelector('.menu-name');
     const editedMenuName = prompt(
       '수정할 메뉴명을 입력해주세요',
       $menuName.innerText
     );
-    this.menu[this.currentCategory][menuId].name = editedMenuName;
+
+    await MenuApi.updateMenuName(
+      this.currentCategory, editedMenuName, menuId
+    );
+
+    // 수정 후 변경 된 데이터를 다시 불러와야 한다.
+    this.menu[this.currentCategory] = await MenuApi.getAllMenuByCategory(
+      this.currentCategory
+    );
+
     render();
   };
 
