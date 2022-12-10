@@ -6,8 +6,8 @@ import store from './store/index.js';
 // [✅] 서버에 새로운 메뉴가 추가될 수 있게 요청한다.
 // [✅] 서버에서 카테고리별 메뉴리스트를 불러온다.
 // [✅] 서버에 메뉴가 수정될 수 있도록 요청한다.
-// [] 서버에 메뉴품절상태를 toggle할 수 있도록 요청한다.
-// [] 서버에 메뉴가 삭제될 수 있도록 요청한다.
+// [✅] 서버에 메뉴품절상태를 toggle할 수 있도록 요청한다.
+// [✅] 서버에 메뉴가 삭제될 수 있도록 요청한다.
 
 // TODO Refactoring 부분 요구사항
 // [] localStorage에 저장하는 로직은 지운다.
@@ -65,7 +65,18 @@ const MenuApi = {
     if (!response.ok) {
       console.error('에러가 발생했습니다.');
     }
-    return response.json();
+  },
+
+  async deleteMenu(category, menuId) {
+    const response = await fetch(
+      `${BASE_URL}/category/${category}/menu/${menuId}`,
+      {
+        method: 'DELETE',
+      }
+    );
+    if (!response.ok) {
+      console.error('에러가 발생했습니다.');
+    }
   },
 };
 
@@ -162,10 +173,13 @@ function App() {
     render();
   };
 
-  const removeMenuName = (e) => {
+  const removeMenuName = async (e) => {
     if (confirm('정말 메뉴를 삭제하시겠습니까?')) {
       const menuId = e.target.closest('li').dataset.menuId;
-      this.menu[this.currentCategory].splice(menuId, 1);
+      await MenuApi.deleteMenu(this.currentCategory, menuId);
+      this.menu[this.currentCategory] = await MenuApi.getAllMenuByCategory(
+        this.currentCategory
+      );
       render();
     }
   };
