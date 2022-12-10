@@ -3,8 +3,8 @@ import store from './store/index.js';
 
 // TODO 웹서버 요구사항
 // [✅] 웹 서버를 띄운다.
-// [] 서버에 새로운 메뉴가 추가될 수 있게 요청한다.
-// [] 서버에서 카테고리별 메뉴리스트를 불러온다.
+// [✅] 서버에 새로운 메뉴가 추가될 수 있게 요청한다.
+// [✅] 서버에서 카테고리별 메뉴리스트를 불러온다.
 // [] 서버에 메뉴가 수정될 수 있도록 요청한다.
 // [] 서버에 메뉴품절상태를 toggle할 수 있도록 요청한다.
 // [] 서버에 메뉴가 삭제될 수 있도록 요청한다.
@@ -18,7 +18,13 @@ import store from './store/index.js';
 // [] 중복되는 메뉴는 추가할 수 없다.
 
 const BASE_URL = 'http://localhost:3000/api';
-// fetch(`${BASE_URL}/`, option)
+
+const MenuApi = {
+  async getAllMenuByCategory(category) {
+    const response = await fetch(`${BASE_URL}/category/${category}/menu`);
+    return response.json();
+  },
+};
 
 function App() {
   this.menu = {
@@ -31,12 +37,12 @@ function App() {
 
   this.currentCategory = 'espresso';
 
-  this.init = () => {
-    if (store.getLocalStorage()) {
-      this.menu = store.getLocalStorage();
-      render();
-      initEventListeners();
-    }
+  this.init = async () => {
+    this.menu[this.currentCategory] = await MenuApi.getAllMenuByCategory(
+      this.currentCategory
+    );
+    render();
+    initEventListeners();
   };
 
   const render = () => {
@@ -95,15 +101,11 @@ function App() {
       return response.json();
     });
 
-    await fetch(`${BASE_URL}/category/${this.currentCategory}/menu`)
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        this.menu[this.currentCategory] = data;
-        render();
-        $('#menu-name').value = '';
-      });
+    this.menu[this.currentCategory] = await MenuApi.getAllMenuByCategory(
+      this.currentCategory
+    );
+    render();
+    $('#menu-name').value = '';
   };
 
   const updateMenuName = (e) => {
@@ -114,7 +116,6 @@ function App() {
       $menuName.innerText
     );
     this.menu[this.currentCategory][menuId].name = editedMenuName;
-    store.setLocalStorage(this.menu);
     render();
   };
 
@@ -122,7 +123,6 @@ function App() {
     if (confirm('정말 메뉴를 삭제하시겠습니까?')) {
       const menuId = e.target.closest('li').dataset.menuId;
       this.menu[this.currentCategory].splice(menuId, 1);
-      store.setLocalStorage(this.menu);
       render();
     }
   };
@@ -131,7 +131,6 @@ function App() {
     const menuId = e.target.closest('li').dataset.menuId;
     this.menu[this.currentCategory][menuId].soldOut =
       !this.menu[this.currentCategory][menuId].soldOut;
-    store.setLocalStorage(this.menu);
     render();
   };
 
