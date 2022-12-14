@@ -1,5 +1,5 @@
 import { $ } from './utils/dom.js';
-import store from './store/index.js';
+// import store from './store/index.js';
 
 // TODO 웹서버 요구사항
 // [✅] 웹 서버를 띄운다.
@@ -16,6 +16,19 @@ import store from './store/index.js';
 // TODO 사용자 경험
 // [✅] API 통신이 실패하는 경우에 대해 사용자가 알 수 있게 alert으로 예외처리를 진행한다.
 // [✅] 중복되는 메뉴는 추가할 수 없다.
+
+// 오늘의 회고, 내가 혼자 짤 때의 전략
+// 1. 웹서버 띄우기
+// 2. BASE_URL 웹서버 변수 먼저 선언
+// 3. 비동기 처리하는데 해당하는 부분이 어디인지 확인, 웹서버에 요청하게끔 코드 짜기
+// 4. 서버에 요청한 후 데이터를 받아서 화면에 렌더링하기
+// 5. 리팩터링
+// - localStorage 부분 지우기
+// - API 분리
+// - 페이지 렌더링과 관련해서 중복되는 부분들 제거
+// - 서버 요청 할 때 option 객체
+// - 카테고리 버튼 클릭 시 콜백함수 분리
+// 6. 사용자 경험 부분 추가하기
 
 import MenuApi from './api/index.js';
 
